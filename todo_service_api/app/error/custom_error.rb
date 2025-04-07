@@ -1,0 +1,1 @@
+class UserNotExistError < StandardError; end

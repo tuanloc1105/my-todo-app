@@ -12,6 +12,20 @@ class UserService
     User.exists?(username: @params[:username])
   end
 
+  def login
+    user = User.where(username: @params[:username]).first
+    if user.nil?
+      raise UserNotExistError
+    end
+
+    if Password.new(user.password) == @params[:password]
+      puts true
+    else
+      puts false
+    end
+
+  end
+
   def create_new
     User.create(
       full_name: @params[:full_name],

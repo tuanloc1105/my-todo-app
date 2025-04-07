@@ -25,6 +25,30 @@ class Api::V1::AuthController < ApplicationController
     render json: new_user.as_json(except: [:password])
   end
 
+  def login
+    required_fields = %w[username password]
+    missing_fields = required_fields.select { |field| params[field].blank? }
+    unless missing_fields.empty?
+      render json: {
+        code: -5,
+        error: "[#{missing_fields.join(', ')}] cannot be empty"
+      }, status: :not_acceptable
+      return
+    end
+    service = UserService.new(user_params)
+    begin
+      service.login
+      render json: {
+        ok: "o"
+      }
+    rescue UserNotExistError
+      render json: {
+        code: -1,
+        error: "User not found"
+      }, status: :not_found
+    end
+  end
+
   def user_params
     params.permit(:username, :password, :full_name)
   end
