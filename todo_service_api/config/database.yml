@@ -1,0 +1,21 @@
+development:
+  adapter: postgresql
+  database: todo_app
+  encoding: utf-8
+  host: 192.168.1.196
+  port: 5432
+  username: postgres
+  password: yfM478rEK207BBA355stk059joK399CX
+  schema_search_path: public
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+
+production:
+  adapter: postgresql
+  database: todo_app
+  encoding: utf-8
+  host: 192.168.1.196
+  port: 5432
+  username: postgres
+  password: yfM478rEK207BBA355stk059joK399CX
+  schema_search_path: public
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
