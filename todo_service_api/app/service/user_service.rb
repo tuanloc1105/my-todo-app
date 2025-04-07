@@ -15,7 +15,7 @@ class UserService
   def login
     user = User.where(username: @params[:username]).first
     if user.nil?
-      raise UserNotExistError
+      raise UserNotExistError.new("User with username #{@params[:username]} not found")
     end
 
     if Password.new(user.password) == @params[:password]
