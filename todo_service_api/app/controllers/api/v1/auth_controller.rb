@@ -3,6 +3,8 @@ require_relative '../../../service/user_service'
 
 class Api::V1::AuthController < ApplicationController
 
+  before_action :authenticate, only: [:info]
+
   def register
     required_fields = %w[username password]
     missing_fields = required_fields.select { |field| params[field].blank? }
@@ -44,6 +46,38 @@ class Api::V1::AuthController < ApplicationController
         code: -1,
         error: "User not found"
       }, status: :not_found
+    end
+  end
+
+  def info
+    render json: {
+      ok: true
+    }
+  end
+
+  def authenticate
+    token = request.headers["Authorization"].to_s
+    if token.nil? or token.empty?
+      render json: {
+        error: "Invalid token"
+      }
+    end
+    substr = token[7..-1]
+    if substr.nil? or substr.empty?
+      render json: {
+        error: "Invalid token"
+      }
+      return
+    end
+    begin
+      hmac_secret = ENV["TOKEN_SECRET"]
+      decoded_content = JWT.decode(substr, hmac_secret, 'HS256')
+      puts decoded_content[0]
+    rescue => e
+      Rails.logger.info e
+      render json: {
+        error: "Validate token failed"
+      }
     end
   end
 
