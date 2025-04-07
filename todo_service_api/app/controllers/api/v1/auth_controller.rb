@@ -37,10 +37,8 @@ class Api::V1::AuthController < ApplicationController
     end
     service = UserService.new(user_params)
     begin
-      service.login
-      render json: {
-        ok: "o"
-      }
+      result = service.login
+      render json: result
     rescue UserNotExistError
       render json: {
         code: -1,

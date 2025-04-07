@@ -19,9 +19,25 @@ class UserService
     end
 
     if Password.new(user.password) == @params[:password]
-      puts true
+      hmac_secret = ENV["TOKEN_SECRET"]
+      payload = {
+        username: user.username,
+        full_name: user.full_name,
+        user_uid: user.user_uid,
+      }
+      LoginResponse.new(
+        user.username,
+        user.full_name,
+        user.user_uid,
+        JWT.encode(payload, hmac_secret, 'HS256')
+      )
     else
-      puts false
+      LoginResponse.new(
+        nil,
+        nil,
+        nil,
+        nil,
+      )
     end
 
   end
