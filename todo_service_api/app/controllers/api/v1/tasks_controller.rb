@@ -14,10 +14,10 @@ class Api::V1::TasksController < ApplicationController
     end
     begin
       parsed_task_remind_at = Time.strptime(params[:task_remind_at].to_s, "%Y-%m-%d %H:%M:%S.%L")
-    rescue ArgumentError
+    rescue ArgumentError => e
       render json: {
         code: -5,
-        error: "Can not parse a valid date for task_remind_at"
+        error: "Can not parse a valid date for task_remind_at: #{e}"
       }, status: :bad_request
       return
     end
