@@ -1,9 +1,9 @@
-require_relative '../../../utils/uuidv7'
-require_relative '../../../service/user_service'
+require_relative "../../../utils/uuidv7"
+require_relative "../../../service/user_service"
 
 class Api::V1::AuthController < ApplicationController
 
-  before_action :authenticate, only: [:info]
+  before_action :authenticate, only: [ :info ]
 
   def register
     required_fields = %w[username password]
@@ -74,7 +74,7 @@ class Api::V1::AuthController < ApplicationController
     end
     begin
       hmac_secret = ENV["TOKEN_SECRET"]
-      decoded_content = JWT.decode(substr, hmac_secret, 'HS256')
+      decoded_content = JWT.decode(substr, hmac_secret, "HS256")
       puts decoded_content[0]
     rescue => e
       Rails.logger.info e
