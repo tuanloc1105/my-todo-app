@@ -1,5 +1,5 @@
-require 'securerandom'
-require 'time'
+require "securerandom"
+require "time"
 
 def uuidv7
   # random bytes
@@ -20,5 +20,5 @@ def uuidv7
   value[6] = (value[6] & 0x0F) | 0x70
   value[8] = (value[8] & 0x3F) | 0x80
 
-  value.pack('C*').unpack1('H*')
+  value.pack("C*").unpack1("H*")
 end
