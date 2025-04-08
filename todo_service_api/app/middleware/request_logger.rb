@@ -7,7 +7,7 @@ class RequestLogger
     req = Rack::Request.new(env)
 
     # Đọc body 1 lần vì rack input là IO stream
-    req_body = req.body.read
+    req_body = req.body.read.force_encoding('UTF-8').scrub
     req.body.rewind # Reset stream sau khi đọc xong
 
     trace_id = RequestStore.store[:trace_id]

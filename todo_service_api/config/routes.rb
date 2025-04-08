@@ -4,9 +4,10 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      post 'auth/register', to: 'auth#register'
-      post 'auth/login', to: 'auth#login'
-      post 'user/info', to: 'auth#info'
+      post "auth/register", to: "auth#register"
+      post "auth/login", to: "auth#login"
+      post "user/info", to: "auth#info"
+      post "tasks/add", to: "tasks#add"
     end
   end
 

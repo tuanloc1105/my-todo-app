@@ -1,5 +1,5 @@
-require_relative '../utils/uuidv7'
-require 'bcrypt'
+require_relative "../utils/uuidv7"
+require "bcrypt"
 
 class UserService
   include BCrypt
@@ -29,7 +29,7 @@ class UserService
         user.username,
         user.full_name,
         user.user_uid,
-        JWT.encode(payload, hmac_secret, 'HS256')
+        JWT.encode(payload, hmac_secret, "HS256")
       )
     else
       LoginResponse.new(
