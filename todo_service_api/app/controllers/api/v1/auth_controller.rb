@@ -51,7 +51,10 @@ class Api::V1::AuthController < ApplicationController
 
   def info
     render json: {
-      ok: true
+      ok: true,
+      ok2: {
+        code: 0,
+      }
     }
   end
 
