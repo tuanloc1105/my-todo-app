@@ -1,4 +1,3 @@
-require_relative "../../../utils/uuidv7"
 require_relative "../../../service/user_service"
 
 class Api::V1::AuthController < ApplicationController

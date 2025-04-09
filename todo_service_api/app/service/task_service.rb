@@ -1,5 +1,3 @@
-require_relative "../utils/uuidv7"
-
 class TaskService
 
   def initialize(params)
@@ -11,7 +9,7 @@ class TaskService
       task_content: @params[:task_content],
       task_remind_at: remind_at,
       task_title: @params[:task_title],
-      task_uid: uuidv7,
+      task_uid: CommonLib::uuidv7,
     )
   end
 

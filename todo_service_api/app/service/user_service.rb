@@ -1,4 +1,3 @@
-require_relative "../utils/uuidv7"
 require "bcrypt"
 
 class UserService
@@ -47,7 +46,7 @@ class UserService
       full_name: @params[:full_name],
       username: @params[:username],
       password: Password.create(@params[:password]),
-      user_uid: uuidv7,
+      user_uid: CommonLib::uuidv7,
       active: true
     )
   end

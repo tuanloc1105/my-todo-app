@@ -1,3 +1,9 @@
+PATH
+  remote: ../lib/common_lib
+  specs:
+    common_lib (0.1.0)
+      rack
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -316,6 +322,7 @@ DEPENDENCIES
   bcrypt (~> 3.1.20)
   bootsnap
   brakeman
+  common_lib!
   debug
   dotenv-rails
   jwt
