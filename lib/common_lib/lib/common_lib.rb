@@ -4,6 +4,7 @@ require_relative "common_lib/version"
 require_relative 'common_lib/uuidv7'
 require_relative 'common_lib/request_logger'
 require_relative 'common_lib/trace_id_middleware'
+require_relative 'common_lib/my_logger'
 
 module CommonLib
   class Error < StandardError; end

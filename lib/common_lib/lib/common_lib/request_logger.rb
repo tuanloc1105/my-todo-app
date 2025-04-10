@@ -18,6 +18,8 @@ module CommonLib
       Rails.logger.info "🔸 Params: #{req.params.inspect}" unless req.params.empty?
       Rails.logger.info "📝 Body: #{req_body}" unless req_body.empty?
 
+      CommonLib::MyLogger.info("asdasd")
+
       status, headers, response = @app.call(env)
 
       res_body = ""
