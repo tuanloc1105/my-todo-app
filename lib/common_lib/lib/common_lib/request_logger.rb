@@ -7,9 +7,10 @@ module CommonLib
     def call(env)
       req = Rack::Request.new(env)
 
-      # Đọc body 1 lần vì rack input là IO stream
       req_body = req.body.read.force_encoding('UTF-8').scrub
-      req.body.rewind # Reset stream sau khi đọc xong
+      req.body.rewind
+
+      req_body = req_body.gsub("\n", "").gsub("    ", "")
 
       trace_id = RequestStore.store[:trace_id]
 
@@ -19,12 +20,15 @@ module CommonLib
 
       status, headers, response = @app.call(env)
 
-      # Đọc response body
       res_body = ""
       if response.respond_to?(:each)
         response.each { |part| res_body << part.to_s }
       else
         res_body = response.to_s
+      end
+
+      unless res_body.empty?
+        res_body = res_body.gsub("\n", "").gsub("    ", "")
       end
 
       Rails.logger.info "⬅️ Response [#{status}] [TraceID=#{trace_id}]"
