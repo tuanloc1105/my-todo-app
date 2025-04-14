@@ -1,19 +1,22 @@
-import { App as AntDesignApp } from "antd";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Demo from "./components/demo/Demo";
+import {App as AntDesignApp} from "antd";
+import {BrowserRouter, Route, Routes} from "react-router-dom";
 import NotFound from "./utils/NotFound";
+import Home from "./components/home/Home.tsx";
+import {AppProvider} from "./context/AppProvider.tsx";
 
 function App() {
-  return (
-      <AntDesignApp>
-          <BrowserRouter>
-              <Routes>
-                  <Route path="/" element={<Demo />}></Route>
-                  <Route path="*" element={<NotFound />} />
-              </Routes>
-          </BrowserRouter>
-      </AntDesignApp>
-  );
+    return (
+        <AntDesignApp>
+            <AppProvider>
+                <BrowserRouter>
+                    <Routes>
+                        <Route path="/" element={<Home/>}></Route>
+                        <Route path="*" element={<NotFound/>}/>
+                    </Routes>
+                </BrowserRouter>
+            </AppProvider>
+        </AntDesignApp>
+    );
 }
 
 export default App;
