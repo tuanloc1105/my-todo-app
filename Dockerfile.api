@@ -1,0 +1,16 @@
+FROM tuanloc/alpine:ruby
+
+WORKDIR /app
+
+COPY lib/common_lib lib/common_lib
+COPY todo_service_api todo_service_api
+
+RUN cd /app/lib/common_lib && \
+    bundle install && \
+    cd /app/todo_service_api && \
+    bundle install
+
+WORKDIR /app/todo_service_api
+
+EXPOSE 3000
+CMD ["rails", "server", "-b", "0.0.0.0"]
