@@ -1,0 +1,6 @@
+apiVersion: v2
+name: lms-vertx-service
+description: A Helm chart for Kubernetes to deploy the lms-vertx-service service
+type: application
+version: 1.0.0
+appVersion: 1.0

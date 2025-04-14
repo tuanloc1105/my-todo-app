@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  replicas: {{ .Values.replica }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-pvc
+      containers:
+        - name: {{ .Release.Name }}
+          volumeMounts:
+            - mountPath: /app/todo_service_api/log
+              name: data
+          image: "{{ .Values.image.name }}:{{ .Values.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: "TOKEN_SECRET"
+              value: "zua296QAH137FHF141NXC127Hid132Cd"
+          ports:
+            - containerPort: {{ .Values.port }}
+              protocol: TCP
+              name: todo-api
