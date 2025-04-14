@@ -1,6 +1,6 @@
 class Api::V1::TasksController < ApplicationController
 
-  before_action :authenticate, only: [:add]
+  before_action :authenticate, only: [ :add, :list_all_tasks, :task_info, :update_task_info ]
 
   def add
     required_fields = %w[task_content task_remind_at task_title]
@@ -21,8 +21,53 @@ class Api::V1::TasksController < ApplicationController
       }, status: :bad_request
       return
     end
-    service = TaskService.new(add_task_params)
+    service = TaskService.new(add_task_params, @current_user)
     render json: service.add(parsed_task_remind_at)
+  end
+
+  def list_all_tasks
+    service = TaskService.new(nil, @current_user)
+    tasks_of_current_user = service.list_all_tasks
+    render json: {
+      tasks: tasks_of_current_user
+    }
+  end
+
+  def task_info
+    required_fields = %w[task_uid]
+    missing_fields = required_fields.select { |field| params[field].blank? }
+    unless missing_fields.empty?
+      render json: {
+        code: -5,
+        error: "[#{missing_fields.join(', ')}] cannot be empty"
+      }, status: :not_acceptable
+      return
+    end
+    service = TaskService.new(task_info_param, @current_user)
+    task_info = service.task_info
+    if task_info.nil?
+      render json: {
+        code: -404,
+        error: "Cannot find task with uid #{task_info_param[:task_uid]}"
+      }, status: :not_found
+      return
+    end
+    render json: service.task_info
+  end
+
+  def update_task_info
+    required_fields = %w[task_uid task_content task_remind_at task_title]
+    missing_fields = required_fields.select { |field| params[field].blank? }
+    unless missing_fields.empty?
+      render json: {
+        code: -5,
+        error: "[#{missing_fields.join(', ')}] cannot be empty"
+      }, status: :not_acceptable
+      return
+    end
+    service = TaskService.new(update_task_info_param, @current_user)
+    result = service.update_task_info
+    render json: result[1], status:result[0]
   end
 
   def authenticate
@@ -42,7 +87,8 @@ class Api::V1::TasksController < ApplicationController
     begin
       hmac_secret = ENV["TOKEN_SECRET"]
       decoded_content = JWT.decode(substr, hmac_secret, "HS256")
-      puts decoded_content[0]
+      puts "Current user is #{decoded_content[0]["username"]}"
+      @current_user = User.find_by(username: decoded_content[0]["username"])
     rescue => e
       Rails.logger.info e
       render json: {
@@ -53,6 +99,14 @@ class Api::V1::TasksController < ApplicationController
 
   def add_task_params
     params.permit(:task_content, :task_remind_at, :task_title)
+  end
+
+  def task_info_param
+    params.permit(:task_uid)
+  end
+
+  def update_task_info_param
+    params.permit(:task_uid, :task_content, :task_remind_at, :task_title)
   end
 
 end

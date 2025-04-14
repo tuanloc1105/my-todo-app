@@ -11,3 +11,9 @@ CREATE TABLE public.tasks
 
 ALTER TABLE public.tasks
     ADD CONSTRAINT task_uid_unique UNIQUE (task_uid);
+
+ALTER TABLE public.tasks
+    ADD COLUMN created_by VARCHAR;
+
+ALTER TABLE public.tasks
+    ADD COLUMN updated_by VARCHAR;

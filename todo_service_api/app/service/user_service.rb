@@ -1,7 +1,9 @@
 require "bcrypt"
+require "common_lib"
 
 class UserService
   include BCrypt
+  include CommonLib
 
   def initialize(params)
     @params = params
@@ -46,7 +48,7 @@ class UserService
       full_name: @params[:full_name],
       username: @params[:username],
       password: Password.create(@params[:password]),
-      user_uid: CommonLib::uuidv7,
+      user_uid: uuidv7,
       active: true
     )
   end
