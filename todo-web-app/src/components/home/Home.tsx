@@ -27,7 +27,7 @@ const Home: React.FC = () => {
     };
 
     useEffect(() => {
-        if (localStorage.getItem("access_token")) {
+        if (!localStorage.getItem("access_token")) {
             openNotificationWithIcon("warning", "You have not logged in");
             navigateTo("/login");
         }
