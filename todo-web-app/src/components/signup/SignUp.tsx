@@ -3,6 +3,9 @@ import {useAppContext} from "../../context/AppProvider.tsx";
 import {Button, ConfigProvider, Form, Input, notification, theme} from "antd";
 import {useNavigateTo} from "../../utils/navigation.ts";
 import {LoginOutlined} from "@ant-design/icons";
+import {SignUpRequest} from "../../dto/ApiRequest.ts";
+import {sendRequestJson} from "../../utils/api-utils.ts";
+import {LoginResponse} from "../../dto/ApiResponse.ts";
 
 const SignUp: React.FC = () => {
     const navigateTo = useNavigateTo();
@@ -24,6 +27,27 @@ const SignUp: React.FC = () => {
             ),
         });
     };
+
+    const handleSignUp = async (): Promise<void> => {
+        const requestDate: SignUpRequest = {
+            username: usernameInput,
+            password: passwordInput,
+            full_name: fullNameInput,
+        }
+        const signUpResult = await sendRequestJson<LoginResponse>(
+            requestDate,
+            `${import.meta.env.VITE_BACKEND_API_URL}/auth/register`,
+            "POST",
+            {}
+        );
+        if (signUpResult.code === 200) {
+            navigateTo("/login");
+        } else {
+            const apiResponseMessage: string = signUpResult.response.error ? signUpResult.response.error : "Cannot proceed your sign up request";
+            openNotificationWithIcon("error", apiResponseMessage);
+            return;
+        }
+    }
 
     return (
         <>
@@ -88,11 +112,7 @@ const SignUp: React.FC = () => {
                                         type="primary"
                                         icon={<LoginOutlined/>}
                                         iconPosition="end"
-                                        onClick={() => {
-                                            console.log(usernameInput);
-                                            console.log(passwordInput);
-                                            console.log(fullNameInput);
-                                        }}
+                                        onClick={handleSignUp}
                                         disabled={!usernameInput || !passwordInput || !fullNameInput}
                                     >
                                         Sign up

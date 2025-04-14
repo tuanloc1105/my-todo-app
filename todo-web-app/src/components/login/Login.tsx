@@ -44,7 +44,7 @@ const Login: React.FC = () => {
         );
         if (loginResult.code === 200) {
             localStorage.setItem("access_token", loginResult.response.token);
-            navigateTo("lead");
+            navigateTo("/");
         } else {
             const apiResponseMessage: string = loginResult.response.error ? loginResult.response.error : "Username or password can not be empty";
             openNotificationWithIcon("error", apiResponseMessage);
