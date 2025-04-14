@@ -1,6 +1,11 @@
 export interface ApiResponse {
-    trace: string;
-    errorCode: number;
-    errorDescription?: string;
-    httpCode: number;
+    code?: number;
+    error?: string;
+}
+
+export interface LoginResponse extends ApiResponse {
+    username: string;
+    full_name: string;
+    user_uid: string;
+    token: string;
 }

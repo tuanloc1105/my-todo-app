@@ -4,6 +4,8 @@ import {useNavigateTo} from "../../utils/navigation.ts";
 import {Button, ConfigProvider, Input, notification, theme} from "antd";
 import {LoginOutlined} from "@ant-design/icons";
 import {sendRequestJson} from "../../utils/api-utils.ts";
+import {LoginResponse} from "../../dto/ApiResponse.ts";
+import {LoginRequest} from "../../dto/ApiRequest.ts";
 
 const Login: React.FC = () => {
     const navigateTo = useNavigateTo();
@@ -30,20 +32,22 @@ const Login: React.FC = () => {
             openNotificationWithIcon("warning", "Username or password can not be empty");
             return;
         }
+        const requestDate: LoginRequest = {
+            username: username,
+            password: password,
+        }
         const loginResult = await sendRequestJson<LoginResponse>(
-            {
-                username: username,
-                password: password
-            },
-            `${import.meta.env.VITE_BACKEND_API_URL}/user/login`,
+            requestDate,
+            `${import.meta.env.VITE_BACKEND_API_URL}/auth/login`,
             "POST",
             {}
         );
-        if (loginResult.code === 200 && loginResult.response.errorCode === 100000) {
+        if (loginResult.code === 200) {
             localStorage.setItem("access_token", loginResult.response.token);
             navigateTo("lead");
         } else {
-            openNotificationWithIcon("error", "Username or password is not correct");
+            const apiResponseMessage: string = loginResult.response.error ? loginResult.response.error : "Username or password can not be empty";
+            openNotificationWithIcon("error", apiResponseMessage);
             return;
         }
     }
@@ -120,6 +124,7 @@ const Login: React.FC = () => {
                                 type="primary"
                                 icon={<LoginOutlined/>}
                                 iconPosition="end"
+                                onClick={handleLogin}
                             >
                                 Login
                             </Button>
