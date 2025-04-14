@@ -39,7 +39,14 @@ class Api::V1::AuthController < ApplicationController
     service = UserService.new(user_params)
     begin
       result = service.login
-      render json: result
+      unless result.token.nil?
+        render json: result
+        return
+      end
+      render json: {
+        code: -2,
+        error: "Username or password is incorrect"
+      }, status: 400
     rescue UserNotExistError
       render json: {
         code: -1,

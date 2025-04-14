@@ -1,14 +1,17 @@
-import React from "react";
+import React, {useState} from "react";
 import {useAppContext} from "../../context/AppProvider.tsx";
 import {useNavigateTo} from "../../utils/navigation.ts";
 import {Button, ConfigProvider, Input, notification, theme} from "antd";
 import {LoginOutlined} from "@ant-design/icons";
+import {sendRequestJson} from "../../utils/api-utils.ts";
 
 const Login: React.FC = () => {
     const navigateTo = useNavigateTo();
     const [api, contextHolder] = notification.useNotification();
     type NotificationType = 'success' | 'info' | 'warning' | 'error';
     const {lightTheme} = useAppContext();
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
 
     const openNotificationWithIcon = (type: NotificationType, contentL: string) => {
         api[type]({
@@ -19,6 +22,36 @@ const Login: React.FC = () => {
                 <p className="font-sans">{contentL}</p>
             ),
         });
+    };
+
+
+    const handleLogin = async (): Promise<void> => {
+        if (!username || !password) {
+            openNotificationWithIcon("warning", "Username or password can not be empty");
+            return;
+        }
+        const loginResult = await sendRequestJson<LoginResponse>(
+            {
+                username: username,
+                password: password
+            },
+            `${import.meta.env.VITE_BACKEND_API_URL}/user/login`,
+            "POST",
+            {}
+        );
+        if (loginResult.code === 200 && loginResult.response.errorCode === 100000) {
+            localStorage.setItem("access_token", loginResult.response.token);
+            navigateTo("lead");
+        } else {
+            openNotificationWithIcon("error", "Username or password is not correct");
+            return;
+        }
+    }
+
+    const handlePressEnter = async (event: React.KeyboardEvent<HTMLInputElement>) => {
+        if (event.key === "Enter") {
+            handleLogin().then(() => {});
+        }
     };
 
     return (
@@ -49,20 +82,32 @@ const Login: React.FC = () => {
                         <Input
                             style={{width: '50%'}}
                             placeholder="Enter username..."
-                            // value={username}
-                            // onChange={(value) => {
-                            //     setUsername(value.target.value)
-                            // }}
+                            value={username}
+                            onChange={(value) => {
+                                setUsername(value.target.value)
+                            }}
                         />
                         <Input.Password
                             style={{width: '50%'}}
                             placeholder="Enter password..."
-                            // value={password}
-                            // onChange={(value) => {
-                            //     setPassword(value.target.value)
-                            // }}
-                            // onKeyDown={handlePressEnter}
+                            value={password}
+                            onChange={(value) => {
+                                setPassword(value.target.value)
+                            }}
+                            onKeyDown={handlePressEnter}
                         />
+                        <div
+                            className="w-1/2 flex justify-end"
+                        >
+                            <div
+                                className="cursor-pointer select-none hover:bg-purple-600 hover:text-white"
+                                onClick={() => {
+                                    navigateTo("/signup");
+                                }}
+                            >
+                                Register new user
+                            </div>
+                        </div>
                         <ConfigProvider
                             theme={{
                                 token: {
