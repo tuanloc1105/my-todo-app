@@ -1,7 +1,5 @@
 #!/bin/bash
 
-clear
-
 build_location_context=$(pwd)
 
 local_docker_file_name="./Dockerfile.api"
