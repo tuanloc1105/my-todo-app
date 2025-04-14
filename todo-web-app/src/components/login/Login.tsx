@@ -1,19 +1,14 @@
-import React, {useEffect} from "react";
+import React from "react";
 import {useAppContext} from "../../context/AppProvider.tsx";
-import {Button, ConfigProvider, GetProps, Input, notification, theme} from 'antd';
-import {MoonOutlined, SunOutlined} from "@ant-design/icons";
 import {useNavigateTo} from "../../utils/navigation.ts";
+import {Button, ConfigProvider, Input, notification, theme} from "antd";
+import {LoginOutlined} from "@ant-design/icons";
 
-const Home: React.FC = () => {
-    // const {message} = App.useApp();
+const Login: React.FC = () => {
     const navigateTo = useNavigateTo();
     const [api, contextHolder] = notification.useNotification();
     type NotificationType = 'success' | 'info' | 'warning' | 'error';
-    type SearchProps = GetProps<typeof Input.Search>;
-    const {Search} = Input;
-    const {lightTheme, setLightTheme} = useAppContext();
-    const onSearch: SearchProps['onSearch'] = (value, _e, info) =>
-        console.log(info?.source, value);
+    const {lightTheme} = useAppContext();
 
     const openNotificationWithIcon = (type: NotificationType, contentL: string) => {
         api[type]({
@@ -25,13 +20,6 @@ const Home: React.FC = () => {
             ),
         });
     };
-
-    useEffect(() => {
-        if (localStorage.getItem("access_token")) {
-            openNotificationWithIcon("warning", "You have not logged in");
-            navigateTo("/login");
-        }
-    }, [navigateTo]);
 
     return (
         <>
@@ -56,39 +44,47 @@ const Home: React.FC = () => {
                         TODO LIST
                     </h1>
                     <div
-                        style={{
-                            maxHeight: "22px"
-                        }}
-                        className="flex gap-2 w-1/2"
+                        className="flex flex-col gap-2 w-1/2 items-center"
                     >
+                        <Input
+                            style={{width: '50%'}}
+                            placeholder="Enter username..."
+                            // value={username}
+                            // onChange={(value) => {
+                            //     setUsername(value.target.value)
+                            // }}
+                        />
+                        <Input.Password
+                            style={{width: '50%'}}
+                            placeholder="Enter password..."
+                            // value={password}
+                            // onChange={(value) => {
+                            //     setPassword(value.target.value)
+                            // }}
+                            // onKeyDown={handlePressEnter}
+                        />
                         <ConfigProvider
                             theme={{
                                 token: {
-                                    colorPrimary: "#8b5cf6", // violet-500
+                                    colorPrimary: "#8b5cf6",
+                                    colorTextLightSolid: "black",
                                 }
                             }}
                         >
-                            <Search
-                                style={{
-                                    height: "100%",
-                                }}
-                                placeholder="Enter your search to find task..."
-                                onSearch={onSearch}
-                                enterButton
-                            />
                             <Button
                                 type="primary"
-                                icon={lightTheme ? <MoonOutlined/> : <SunOutlined/>}
-                                onClick={() => {
-                                    setLightTheme(!lightTheme);
-                                }}
-                            />
+                                icon={<LoginOutlined/>}
+                                iconPosition="end"
+                            >
+                                Login
+                            </Button>
                         </ConfigProvider>
                     </div>
                 </ConfigProvider>
+
             </div>
         </>
     );
 }
 
-export default Home;
+export default Login;
