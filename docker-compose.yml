@@ -1,0 +1,13 @@
+services:
+  todo-api:
+    restart: on-failure
+    container_name: todo-api
+    image: todo_api:latest
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+      - TOKEN_SECRET=zua296QAH137FHF141NXC127Hid132Cd
+    ports:
+      - "3000:3000"
+    build:
+      context: .
+      dockerfile: ./Dockerfile.api
