@@ -1,6 +1,6 @@
 class Api::V1::TasksController < ApplicationController
 
-  before_action :authenticate, only: [ :add, :list_all_tasks, :task_info, :update_task_info ]
+  before_action :authenticate, only: [ :add, :list_all_tasks, :task_info, :update_task_info, :delete_task, :search_task ]
 
   def add
     required_fields = %w[task_content task_remind_at task_title]
@@ -70,6 +70,19 @@ class Api::V1::TasksController < ApplicationController
     render json: result[1], status:result[0]
   end
 
+  def delete_task
+    service = TaskService.new(task_info_param, @current_user)
+    result = service.delete_task
+    render json: result[1], status: result[0]
+  end
+
+  def search_task
+    service = TaskService.new(search_task_param, @current_user)
+    render json: {
+      result: service.search_task_by_name
+    }
+  end
+
   def authenticate
     token = request.headers["Authorization"].to_s
     if token.nil? or token.empty?
@@ -107,6 +120,10 @@ class Api::V1::TasksController < ApplicationController
 
   def update_task_info_param
     params.permit(:task_uid, :task_content, :task_remind_at, :task_title)
+  end
+
+  def search_task_param
+    params.permit(:task_title)
   end
 
 end

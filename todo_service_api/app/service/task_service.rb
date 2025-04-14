@@ -16,6 +16,10 @@ class TaskService
     Task.where(created_by: @current_user.username).and(Task.where(task_uid: @params[:task_uid])).first
   end
 
+  def search_task_by_name
+    Task.where(created_by: @current_user.username).and(Task.where("task_title LIKE ?", @params[:task_title]))
+  end
+
   def update_task_info
     task = task_info
     if task.nil?
@@ -48,6 +52,26 @@ class TaskService
         }
       ]
     end
+  end
+
+  def delete_task
+    task = task_info
+    if task.nil?
+      return [
+        404,
+        {
+          code: -404,
+          error: "Cannot find task with uid #{@params[:task_uid]}"
+        }
+      ]
+    end
+    task.destroy
+    return [
+      200,
+      {
+        message: "delete ok"
+      }
+    ]
   end
 
   def add(remind_at)

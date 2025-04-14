@@ -14,6 +14,8 @@ Rails.application.routes.draw do
       post "tasks/list_all_tasks", to: "tasks#list_all_tasks"
       post "tasks/task_info", to: "tasks#task_info"
       post "tasks/update_task_info", to: "tasks#update_task_info"
+      post "tasks/delete_task", to: "tasks#delete_task"
+      post "tasks/search_task", to: "tasks#search_task"
 
     end
   end
