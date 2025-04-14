@@ -17,7 +17,7 @@ class TaskService
   end
 
   def search_task_by_name
-    Task.where(created_by: @current_user.username).and(Task.where("task_title LIKE ?", @params[:task_title]))
+    Task.where(created_by: @current_user.username).and(Task.where("task_title LIKE ?", "%#{@params[:task_title]}%"))
   end
 
   def update_task_info
