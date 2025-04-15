@@ -5,7 +5,7 @@ import {useNavigateTo} from "../../utils/navigation.ts";
 import {LoginOutlined} from "@ant-design/icons";
 import {SignUpRequest} from "../../dto/ApiRequest.ts";
 import {sendRequestJson} from "../../utils/api-utils.ts";
-import {LoginResponse} from "../../dto/ApiResponse.ts";
+import {SignUpResponse} from "../../dto/ApiResponse.ts";
 
 const SignUp: React.FC = () => {
     const navigateTo = useNavigateTo();
@@ -34,7 +34,7 @@ const SignUp: React.FC = () => {
             password: passwordInput,
             full_name: fullNameInput,
         }
-        const signUpResult = await sendRequestJson<LoginResponse>(
+        const signUpResult = await sendRequestJson<SignUpResponse>(
             requestDate,
             `${import.meta.env.VITE_BACKEND_API_URL}/auth/register`,
             "POST",

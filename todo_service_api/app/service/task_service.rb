@@ -9,7 +9,7 @@ class TaskService
   end
 
   def list_all_tasks
-    Task.where(created_by: @current_user.username)
+    Task.where(created_by: @current_user.username).page(@params[:page_no]).per(10)
   end
 
   def task_info

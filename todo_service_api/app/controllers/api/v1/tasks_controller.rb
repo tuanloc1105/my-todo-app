@@ -27,10 +27,15 @@ class Api::V1::TasksController < ApplicationController
   end
 
   def list_all_tasks
-    service = TaskService.new(nil, @current_user)
-    tasks_of_current_user = service.list_all_tasks
+    service = TaskService.new(list_all_tasks_params, @current_user)
+    tasks_of_current_user = service.list_all_tasks()
     render json: {
-      tasks: tasks_of_current_user
+      tasks: tasks_of_current_user,
+      meta: {
+        current_page: tasks_of_current_user.current_page,
+        total_pages: tasks_of_current_user.total_pages,
+        total_count: tasks_of_current_user.total_count
+      }
     }
   end
 
@@ -101,7 +106,7 @@ class Api::V1::TasksController < ApplicationController
     begin
       hmac_secret = ENV["TOKEN_SECRET"]
       decoded_content = JWT.decode(substr, hmac_secret, "HS256")
-      puts "Current user is #{decoded_content[0]["username"]}"
+      Rails.logger.info "Current user is #{decoded_content[0]["username"]}"
       @current_user = User.find_by(username: decoded_content[0]["username"])
     rescue => e
       Rails.logger.info e
@@ -109,6 +114,10 @@ class Api::V1::TasksController < ApplicationController
         error: "Validate token failed"
       }
     end
+  end
+
+  def list_all_tasks_params
+    params.permit(:page_no)
   end
 
   def add_task_params
