@@ -2,6 +2,7 @@ require_relative "../../../service/user_service"
 
 class Api::V1::AuthController < ApplicationController
 
+  wrap_parameters false
   before_action :authenticate, only: [ :info ]
 
   def register
@@ -23,7 +24,7 @@ class Api::V1::AuthController < ApplicationController
       return
     end
     new_user = service.create_new
-    render json: new_user.as_json(except: [:password])
+    render json: new_user.as_json(except: [ :password ])
   end
 
   def login

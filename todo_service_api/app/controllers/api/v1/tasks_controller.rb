@@ -1,5 +1,6 @@
 class Api::V1::TasksController < ApplicationController
 
+  wrap_parameters false
   before_action :authenticate, only: [ :add, :list_all_tasks, :task_info, :update_task_info, :delete_task, :search_task ]
 
   def add
@@ -67,7 +68,7 @@ class Api::V1::TasksController < ApplicationController
     end
     service = TaskService.new(update_task_info_param, @current_user)
     result = service.update_task_info
-    render json: result[1], status:result[0]
+    render json: result[1], status: result[0]
   end
 
   def delete_task
