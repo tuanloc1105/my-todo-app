@@ -20,7 +20,7 @@ const Home: React.FC = () => {
         console.log(info?.source, value);
     const [loading, setLoading] = useState<boolean>(false);
     const [tasksListPageNumber, setTasksListPageNumber] = useState(1);
-    const [maxTasksListPage, setMaxTasksListPage] = useState(0);
+    const [totalTasksCount, setTotalTasksCount] = useState(0);
     const [tasksData, setTasksData] = useState<TaskItem[]>([]);
 
     const openNotificationWithIcon = (type: NotificationType, contentL: string) => {
@@ -34,12 +34,13 @@ const Home: React.FC = () => {
         });
     };
 
-    const handleGetTasks = async (): Promise<void> => {
+    const handleGetTasks = async (pageNum: number | 0): Promise<void> => {
         setLoading(true);
         try {
             const request: ListAllTasksRequest = {
-                page_no: tasksListPageNumber
+                page_no: pageNum === 0 ? tasksListPageNumber : pageNum
             }
+            console.log(request)
             const listAllTasksResult = await sendRequestJson<ListAllTasksResponse>(
                 request,
                 `${import.meta.env.VITE_BACKEND_API_URL}/tasks/list_all_tasks`,
@@ -51,7 +52,7 @@ const Home: React.FC = () => {
             if (listAllTasksResult.code === 401) {
                 navigateTo("/");
             }
-            setMaxTasksListPage(listAllTasksResult.response.meta.total_pages);
+            setTotalTasksCount(listAllTasksResult.response.meta.total_count);
             if (listAllTasksResult.response.meta.total_count > 0) {
                 setTasksData(listAllTasksResult.response.tasks);
             }
@@ -68,7 +69,7 @@ const Home: React.FC = () => {
             openNotificationWithIcon("warning", "You have not logged in");
             navigateTo("/login");
         }
-        handleGetTasks().then();
+        handleGetTasks(0).then();
     }, []);
 
     const columns: TableProps<TaskItem>['columns'] = [
@@ -115,7 +116,7 @@ const Home: React.FC = () => {
                     (
                         lightTheme ? "bg-gradient-to-r from-purple-900 to-yellow-50" :
                             "bg-gradient-to-r from-purple-900 to-stone-900"
-                    ) + " w-screen h-screen flex flex-col items-center justify-center gap-5 font-sans"
+                    ) + " w-screen h-screen flex flex-col items-center justify-center gap-5 font-sans overflow-auto"
                 }
             >
                 <ConfigProvider
@@ -159,13 +160,24 @@ const Home: React.FC = () => {
                             />
                         </ConfigProvider>
                     </div>
-                    <div className="w-1/2">
+                    <div className="w-1/2 overflow-auto">
                         <Table<TaskItem>
                             rowKey={'task_uid'}
                             columns={columns}
                             dataSource={tasksData}
                             scroll={{x: 'max-content'}}
                             style={{maxWidth: '100%'}}
+                            pagination={{
+                                current: tasksListPageNumber,
+                                total: totalTasksCount,
+                                pageSize: 10,
+                                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} element(s)`, // Hiển thị tổng số mục
+                                onChange: async (page, pageSize) => {
+                                    console.log("reload - " + page + " - " + pageSize);
+                                    setTasksListPageNumber(page);
+                                    await handleGetTasks(page);
+                                },
+                            }}
                         />
                     </div>
                 </ConfigProvider>
