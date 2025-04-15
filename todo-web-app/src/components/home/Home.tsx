@@ -1,12 +1,26 @@
 import React, {useEffect, useState} from "react";
 import {useAppContext} from "../../context/AppProvider.tsx";
-import {Button, ConfigProvider, GetProps, Input, notification, Table, TableProps, theme} from 'antd';
-import {MoonOutlined, SunOutlined} from "@ant-design/icons";
+import {
+    Button,
+    ConfigProvider,
+    DatePicker,
+    FloatButton,
+    GetProps,
+    Input,
+    Modal,
+    notification,
+    Table,
+    TableProps,
+    theme
+} from 'antd';
+import {MoonOutlined, PlusOutlined, SunOutlined} from "@ant-design/icons";
 import {useNavigateTo} from "../../utils/navigation.ts";
 import Loading from "../common/Loading.tsx";
 import {ListAllTasksRequest} from "../../dto/ApiRequest.ts";
 import {sendRequestJson} from "../../utils/api-utils.ts";
 import {ListAllTasksResponse, TaskItem} from "../../dto/ApiResponse.ts";
+
+// type RangePickerProps = GetProps<typeof DatePicker.RangePicker>;
 
 const Home: React.FC = () => {
     // const {message} = App.useApp();
@@ -22,6 +36,12 @@ const Home: React.FC = () => {
     const [tasksListPageNumber, setTasksListPageNumber] = useState(1);
     const [totalTasksCount, setTotalTasksCount] = useState(0);
     const [tasksData, setTasksData] = useState<TaskItem[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [newTaskData, setNewTaskData] = useState({
+        taskTitle: "",
+        taskContent: "",
+        taskRemindDate: "",
+    })
 
     const openNotificationWithIcon = (type: NotificationType, contentL: string) => {
         api[type]({
@@ -32,6 +52,19 @@ const Home: React.FC = () => {
                 <p className="font-sans">{contentL}</p>
             ),
         });
+    };
+
+    const showModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleOk = () => {
+        console.log(newTaskData);
+        setIsModalOpen(false);
+    };
+
+    const handleCancel = () => {
+        setIsModalOpen(false);
     };
 
     const handleGetTasks = async (pageNum: number | 0): Promise<void> => {
@@ -63,6 +96,10 @@ const Home: React.FC = () => {
             setLoading(false);
         }
     };
+
+    // const onOk = (value: DatePickerProps['value'] | RangePickerProps['value']) => {
+    //     console.log('onOk: ', value);
+    // };
 
     useEffect(() => {
         if (!localStorage.getItem("access_token")) {
@@ -127,6 +164,12 @@ const Home: React.FC = () => {
                         algorithm: lightTheme ? theme.defaultAlgorithm : theme.darkAlgorithm
                     }}
                 >
+
+                    <FloatButton
+                        onClick={() => showModal()}
+                        icon={<PlusOutlined/>}
+                    />
+
                     <h1 className="bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent text-3xl font-bold">
                         TODO LIST
                     </h1>
@@ -171,7 +214,7 @@ const Home: React.FC = () => {
                                 current: tasksListPageNumber,
                                 total: totalTasksCount,
                                 pageSize: 10,
-                                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} element(s)`, // Hiển thị tổng số mục
+                                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} element(s)`,
                                 onChange: async (page, pageSize) => {
                                     console.log("reload - " + page + " - " + pageSize);
                                     setTasksListPageNumber(page);
@@ -180,6 +223,56 @@ const Home: React.FC = () => {
                             }}
                         />
                     </div>
+                    <ConfigProvider
+                        theme={{
+                            token: {
+                                colorPrimary: "#8b5cf6", // violet-500
+                            }
+                        }}
+                    >
+                        <Modal
+                            width="50%"
+                            title="Add new task"
+                            open={isModalOpen}
+                            onOk={handleOk}
+                            onCancel={handleCancel}
+                        >
+                            <div
+                                className="flex flex-col gap-5 overflow-auto"
+                            >
+                                <Input
+                                    value={newTaskData.taskTitle}
+                                    onChange={(e) => {
+                                        setNewTaskData(prev => ({
+                                            ...prev,
+                                            taskTitle: e.target.value,
+                                        }));
+                                    }}
+                                    placeholder="Task title"/>
+                                <Input
+                                    value={newTaskData.taskContent}
+                                    onChange={(e) => {
+                                        setNewTaskData(prev => ({
+                                            ...prev,
+                                            taskContent: e.target.value,
+                                        }));
+                                    }}
+                                    placeholder="Task content"/>
+                                <DatePicker
+                                    showTime
+                                    onChange={(value, dateString) => {
+                                        console.log('Selected Time: ', value);
+                                        console.log('Formatted Selected Time: ', dateString);
+                                        setNewTaskData(prev => ({
+                                            ...prev,
+                                            taskRemindDate: dateString + "",
+                                        }));
+                                    }}
+                                    // onOk={onOk}
+                                />
+                            </div>
+                        </Modal>
+                    </ConfigProvider>
                 </ConfigProvider>
                 {
                     loading && <Loading/>
