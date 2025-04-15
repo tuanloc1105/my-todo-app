@@ -16,6 +16,15 @@ export interface SignUpResponse extends ApiResponse {
     user_uid: string;
 }
 
+export interface ListAllTasksResponse extends ApiResponse {
+    tasks: TaskItem[];
+    meta: {
+        current_page: number;
+        total_pages: number;
+        total_count: number;
+    }
+}
+
 export interface TaskItem {
     id: number;
     created_at: string;

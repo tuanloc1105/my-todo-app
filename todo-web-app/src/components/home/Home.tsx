@@ -1,8 +1,12 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {useAppContext} from "../../context/AppProvider.tsx";
-import {Button, ConfigProvider, GetProps, Input, notification, theme} from 'antd';
+import {Button, ConfigProvider, GetProps, Input, notification, Table, TableProps, theme} from 'antd';
 import {MoonOutlined, SunOutlined} from "@ant-design/icons";
 import {useNavigateTo} from "../../utils/navigation.ts";
+import Loading from "../common/Loading.tsx";
+import {ListAllTasksRequest} from "../../dto/ApiRequest.ts";
+import {sendRequestJson} from "../../utils/api-utils.ts";
+import {ListAllTasksResponse, TaskItem} from "../../dto/ApiResponse.ts";
 
 const Home: React.FC = () => {
     // const {message} = App.useApp();
@@ -14,6 +18,10 @@ const Home: React.FC = () => {
     const {lightTheme, setLightTheme} = useAppContext();
     const onSearch: SearchProps['onSearch'] = (value, _e, info) =>
         console.log(info?.source, value);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [tasksListPageNumber, setTasksListPageNumber] = useState(1);
+    const [maxTasksListPage, setMaxTasksListPage] = useState(0);
+    const [tasksData, setTasksData] = useState<TaskItem[]>([]);
 
     const openNotificationWithIcon = (type: NotificationType, contentL: string) => {
         api[type]({
@@ -26,12 +34,78 @@ const Home: React.FC = () => {
         });
     };
 
+    const handleGetTasks = async (): Promise<void> => {
+        setLoading(true);
+        try {
+            const request: ListAllTasksRequest = {
+                page_no: tasksListPageNumber
+            }
+            const listAllTasksResult = await sendRequestJson<ListAllTasksResponse>(
+                request,
+                `${import.meta.env.VITE_BACKEND_API_URL}/tasks/list_all_tasks`,
+                "POST",
+                {
+                    "Authorization": `Bearer ${localStorage.getItem("access_token")}`
+                }
+            );
+            if (listAllTasksResult.code === 401) {
+                navigateTo("/");
+            }
+            setMaxTasksListPage(listAllTasksResult.response.meta.total_pages);
+            if (listAllTasksResult.response.meta.total_count > 0) {
+                setTasksData(listAllTasksResult.response.tasks);
+            }
+        } catch (error) {
+            console.log(error);
+            openNotificationWithIcon("error", "An unexpected error occurred.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         if (!localStorage.getItem("access_token")) {
             openNotificationWithIcon("warning", "You have not logged in");
             navigateTo("/login");
         }
-    }, [navigateTo]);
+        handleGetTasks().then();
+    }, []);
+
+    const columns: TableProps<TaskItem>['columns'] = [
+        {
+            title: 'Task',
+            dataIndex: "task_title",
+            key: "task_title",
+        },
+        {
+            title: 'Detail',
+            dataIndex: "task_content",
+            key: "task_content",
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            render: (_, record: TaskItem) => (
+                <>
+                    <div className="flex gap-2">
+                        <Button
+                            style={{
+                                width: 'fit-content',
+                                color: 'black',
+                            }}
+                            color="yellow"
+                            variant="solid"
+                            onClick={() => {
+                                console.log(record);
+                            }}
+                        >
+                            Button
+                        </Button>
+                    </div>
+                </>
+            )
+        }
+    ];
 
     return (
         <>
@@ -85,7 +159,19 @@ const Home: React.FC = () => {
                             />
                         </ConfigProvider>
                     </div>
+                    <div className="w-1/2">
+                        <Table<TaskItem>
+                            rowKey={'task_uid'}
+                            columns={columns}
+                            dataSource={tasksData}
+                            scroll={{x: 'max-content'}}
+                            style={{maxWidth: '100%'}}
+                        />
+                    </div>
                 </ConfigProvider>
+                {
+                    loading && <Loading/>
+                }
             </div>
         </>
     );

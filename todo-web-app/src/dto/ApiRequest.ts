@@ -8,3 +8,7 @@ export interface SignUpRequest {
     password: string;
     full_name: string;
 }
+
+export interface ListAllTasksRequest {
+    page_no: number;
+}

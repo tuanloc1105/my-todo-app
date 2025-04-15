@@ -6,6 +6,7 @@ import {LoginOutlined} from "@ant-design/icons";
 import {sendRequestJson} from "../../utils/api-utils.ts";
 import {LoginResponse} from "../../dto/ApiResponse.ts";
 import {LoginRequest} from "../../dto/ApiRequest.ts";
+import Loading from "../common/Loading.tsx";
 
 const Login: React.FC = () => {
     const navigateTo = useNavigateTo();
@@ -14,6 +15,7 @@ const Login: React.FC = () => {
     const {lightTheme} = useAppContext();
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState<boolean>(false);
 
     const openNotificationWithIcon = (type: NotificationType, contentL: string) => {
         api[type]({
@@ -32,23 +34,31 @@ const Login: React.FC = () => {
             openNotificationWithIcon("warning", "Username or password can not be empty");
             return;
         }
-        const requestDate: LoginRequest = {
-            username: username,
-            password: password,
-        }
-        const loginResult = await sendRequestJson<LoginResponse>(
-            requestDate,
-            `${import.meta.env.VITE_BACKEND_API_URL}/auth/login`,
-            "POST",
-            {}
-        );
-        if (loginResult.code === 200) {
-            localStorage.setItem("access_token", loginResult.response.token);
-            navigateTo("/");
-        } else {
-            const apiResponseMessage: string = loginResult.response.error ? loginResult.response.error : "Username or password can not be empty";
-            openNotificationWithIcon("error", apiResponseMessage);
-            return;
+        setLoading(true);
+        try {
+            const requestDate: LoginRequest = {
+                username: username,
+                password: password,
+            }
+            const loginResult = await sendRequestJson<LoginResponse>(
+                requestDate,
+                `${import.meta.env.VITE_BACKEND_API_URL}/auth/login`,
+                "POST",
+                {}
+            );
+            if (loginResult.code === 200) {
+                localStorage.setItem("access_token", loginResult.response.token);
+                navigateTo("/");
+            } else {
+                const apiResponseMessage: string = loginResult.response.error ? loginResult.response.error : "Username or password can not be empty";
+                openNotificationWithIcon("error", apiResponseMessage);
+                return;
+            }
+        } catch (error) {
+            console.log(error);
+            openNotificationWithIcon("error", "An unexpected error occurred.");
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -131,7 +141,9 @@ const Login: React.FC = () => {
                         </ConfigProvider>
                     </div>
                 </ConfigProvider>
-
+                {
+                    loading && <Loading/>
+                }
             </div>
         </>
     );

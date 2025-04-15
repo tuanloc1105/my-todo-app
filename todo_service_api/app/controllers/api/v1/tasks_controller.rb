@@ -100,7 +100,7 @@ class Api::V1::TasksController < ApplicationController
     if substr.nil? or substr.empty?
       render json: {
         error: "Invalid token"
-      }
+      }, status: :unauthorized
       return
     end
     begin
@@ -112,7 +112,7 @@ class Api::V1::TasksController < ApplicationController
       Rails.logger.info e
       render json: {
         error: "Validate token failed"
-      }
+      }, status: :unauthorized
     end
   end
 
